@@ -1,6 +1,7 @@
 package view;
 
 import java.time.LocalTime;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -34,24 +35,48 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import model.Calendar;
 import model.Event;
 
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
+
 public class CalendarView extends Application{
+	
 	private BorderPane window;
 	private VBox topBox, eventVBox;
 	private Label calendarLabel, bottomLabel;
 	private TextField eventTitle, eventSHR, eventSM, eventEHR, eventEM;
 	private TextField eventDay, eventMonth, eventYear, eventLocation, eventNote;
 	private CalendarController controller;
-	private HBox viewOptions;
-	private Button dayButton, weekButton, monthButton, addEvent;
+	private HBox viewOptions,viewCalendar;
+	private Button clearAll, previous, next, dayButton, weekButton, monthButton, addEvent;
 	private ChoiceBox<String> cb;
 	private HashMap<String, String> calendarColors;
+	private int type = 0;
+	private int monthTemp=0,yearTemp=2020,dayTemp=6;
 	ArrayList<Integer> monthsW31 = new ArrayList<Integer>(Arrays.asList(0,2,4,6,7,9,11));
-
+	//
+    private static Calendar calendar1 = null;
+    private static String filename = "test.txt"; 
 	@Override
+	
+	
+	
+	
 	public void start(Stage primaryStage) { 
-		controller = new CalendarController();
+		if(calendar1 == null) {
+			controller = new CalendarController();
+		}else {
+			controller = new CalendarController(calendar1);
+		}
+		
 		window = new BorderPane();
 		// Set calendarColors for various calendar Options
 		calendarColors = new HashMap<String, String>();
@@ -65,8 +90,9 @@ public class CalendarView extends Application{
 		
 		window.setTop(topBox);
 		// By Default, have the dayView pull up
-		window.setCenter(dayView(new Integer(6), new Integer(4), new Integer(30)));
+		window.setCenter(createMonthBox(monthTemp,yearTemp));
 		window.setBottom(bottomLabel);
+		updateView();
 		
 		
 		Scene scene = new Scene(window, 500, 500);
@@ -102,7 +128,12 @@ public class CalendarView extends Application{
 			Optional<ButtonType> result = alert.showAndWait();
 			// Set DayView 
 			if (result.get() == done) {
+				type = 2;
+				monthTemp = months.getValue() - 1;
+				dayTemp = days.getValue();
+				yearTemp = years.getValue();
 				window.setCenter(dayView(days.getValue(), months.getValue() - 1, years.getValue()- 1900));
+				updateView();
 			}
 		});
 		
@@ -132,38 +163,12 @@ public class CalendarView extends Application{
 			Optional<ButtonType> result = alert.showAndWait();
 			// Set DayView 
 			if (result.get() == done) {
-				HBox weekBox = new HBox();
-				Integer day = days.getValue();
-				Integer month = months.getValue() - 1;
-				Integer year = years.getValue();
-				for (int i = 0; i < 7; i++) { 
-					// Wrap February 
-					if (month.equals(new Integer(1)) && day > 28) {
-						month = new Integer(2);
-						day = 1;
-					}
-					// Wrap January, March, May, July, August, October, December
-					if (monthsW31.contains(month) && day > 31) {
-						// Handle specifically December
-						if (month.equals(11)) {
-							year++;
-							month = 0;
-							day = 1;
-						} else {
-							month += 1;
-							day = 1;
-						}
-					}
-					// Wrap Rest of Months
-					if (day > 30) {
-						month += 1;
-						day = 1;
-					}
-					weekBox.getChildren().add(dayView(day, month, year - 1900));
-					day++;
-				}
-				weekBox.setAlignment(Pos.CENTER);
-				window.setCenter(weekBox);
+				type = 1;
+				monthTemp = months.getValue() - 1;
+				dayTemp = days.getValue();
+				yearTemp = years.getValue();
+				window.setCenter(createWeekBox(days.getValue(),months.getValue() - 1,years.getValue()));
+				updateView();
 			}
 		});
 		
@@ -187,49 +192,12 @@ public class CalendarView extends Application{
 			alert.getButtonTypes().setAll(done, cancel);
 			Optional<ButtonType> result = alert.showAndWait();
 			// Set DayView 
-			if (result.get() == done) {
-				VBox monthBox = new VBox();
-				Integer day = 1;
-				Integer month = months.getValue() - 1;
-				Integer year = years.getValue();
-				for (int j = 0; j < 4; j++) {
-					HBox weekBox = new HBox();
-					for (int i = 0; i < 7; i++) { 
-						// Wrap February 
-						if (month.equals(new Integer(1)) && day > 28) {
-							month = new Integer(2);
-							day = 1;
-						}
-						// Wrap January, March, May, July, August, October, December
-						if (monthsW31.contains(month) && day > 31) {
-							// Handle specifically December
-							if (month.equals(11)) {
-								year++;
-								month = 0;
-								day = 1;
-							} else {
-								month += 1;
-								day = 1;
-							}
-						}
-						// Wrap Rest of Months
-						if (day > 30) {
-							month += 1;
-							day = 1;
-						}
-						weekBox.getChildren().add(dayView(day, month, year - 1900));
-						day++;
-					}
-					weekBox.setAlignment(Pos.CENTER);
-					ObservableList<Node> weekList = monthBox.getChildren();
-					if (weekList.size() > 0) {
-						HBox prevWeekBox = (HBox) weekList.get(0);
-						weekBox.setMinHeight(prevWeekBox.getHeight());
-					}
-					monthBox.getChildren().add(weekBox);
-				}
-				monthBox.setAlignment(Pos.CENTER);
-				window.setCenter(monthBox);
+			if (result.get() == done) {		
+				type = 0;
+				monthTemp = months.getValue();
+				yearTemp = years.getValue();
+				window.setCenter(createMonthBox(months.getValue() - 1, years.getValue()));
+				updateView();
 			}
 		});
 		
@@ -261,9 +229,191 @@ public class CalendarView extends Application{
 				controller.addEvent(newEvent);
 				newEvent.setCalendarTag(cb.getValue());
 				System.out.println("");
+				//vuke
+				try {
+					FileOutputStream file = new FileOutputStream(filename);
+					ObjectOutputStream out = new ObjectOutputStream(file);
+					calendar1 =  controller.getCal();
+					out.writeObject(calendar1);
+					out.close();
+					file.close();
+				    System.out.println("test1");
+				    controller.getCal().print();
+				    
+				}catch (IOException ex) { 
+		            System.out.println("IOException is caught 1" + ex); 
+		        }
+				updateView();
 			}
 		});
+		
+		previous.setOnAction((event) -> {
+			if(type == 0) {
+				if(monthTemp != 0) {
+					monthTemp--;
+					window.setCenter(createMonthBox(monthTemp, yearTemp));
+					
+				}else {
+					
+					window.setCenter(createMonthBox(monthTemp, yearTemp));
+				}
+			}else if(type == 2) {
+				if(dayTemp != 1) {
+					dayTemp--;
+					window.setCenter(dayView(dayTemp, monthTemp, yearTemp - 1900));
+				}else {
+					window.setCenter(dayView(dayTemp, monthTemp, yearTemp - 1900));
+				}
+				
+			}else if(type == 1) {
+				if(dayTemp > 7) {
+					dayTemp-=7;
+					window.setCenter(createWeekBox(dayTemp, monthTemp, yearTemp));
+				}else {
+					dayTemp = 1;
+					window.setCenter(createWeekBox(dayTemp, monthTemp, yearTemp));
+				}
+				
+			}
+			updateView();
+		});
+		clearAll.setOnAction((event) -> {
+			Alert alert = new Alert(AlertType.CONFIRMATION);
+			alert.setTitle("Clear All Events");
+			alert.setHeaderText("Are you sure you want to clear all your saved events?");
+			ButtonType done = new ButtonType("Yes, delete them!");
+			ButtonType cancel = new ButtonType("No I want my events!");
+			alert.getButtonTypes().setAll(done, cancel);
+			Optional<ButtonType> result = alert.showAndWait();
+			// Create Event and Add to Calendar
+			if (result.get() == done) {
+				try {
+					new FileOutputStream(filename).close();
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				controller = new CalendarController();
+				updateView();
+			}
+		});
+		
+		next.setOnAction((event) -> {
+			if(type == 0) {
+				if(monthTemp != 11) {
+					monthTemp++;
+					window.setCenter(createMonthBox(monthTemp, yearTemp));
+				}else {
+			
+					window.setCenter(createMonthBox(monthTemp, yearTemp));
+				}
+				
+			}else if(type == 2) {
+				if(dayTemp != 31) {
+					dayTemp++;
+					window.setCenter(dayView(dayTemp, monthTemp, yearTemp - 1900));
+				}else {
+					window.setCenter(dayView(dayTemp, monthTemp, yearTemp - 1900));
+				}
+				
+			}else if(type == 1) {
+				if(dayTemp < 27) {
+					dayTemp+=7;
+					window.setCenter(createWeekBox(dayTemp, monthTemp, yearTemp));
+				}else {
+					window.setCenter(createWeekBox(dayTemp, monthTemp, yearTemp));
+				}
+				
+			}
+		
+			updateView();
+		});
+		
 	}
+
+	public HBox createWeekBox(int days, int months, int years) {
+		HBox weekBox = new HBox();
+		Integer day = days;
+		Integer month = months;
+		Integer year = years;
+		for (int i = 0; i < 7; i++) { 
+			// Wrap February 
+			if (month.equals(new Integer(1)) && day > 28) {
+				month = new Integer(2);
+				day = 1;
+			}
+			// Wrap January, March, May, July, August, October, December
+			if (monthsW31.contains(month) && day > 31) {
+				// Handle specifically December
+				if (month.equals(11)) {
+					year++;
+					month = 0;
+					day = 1;
+				} else {
+					month += 1;
+					day = 1;
+				}
+			}
+			// Wrap Rest of Months
+			if (day > 30) {
+				month += 1;
+				day = 1;
+			}
+			weekBox.getChildren().add(dayView(day, month, year - 1900));
+			day++;
+		}
+		weekBox.setAlignment(Pos.CENTER);
+		return weekBox;
+	}
+	
+	public VBox createMonthBox(int months, int years) {
+		VBox monthBox = new VBox();
+		Integer day = 1;
+		Integer month = months;
+		Integer year = years;
+		for (int j = 0; j < 4; j++) {
+			HBox weekBox = new HBox();
+			for (int i = 0; i < 7; i++) { 
+				// Wrap February 
+				if (month.equals(new Integer(1)) && day > 28) {
+					month = new Integer(2);
+					day = 1;
+				}
+				// Wrap January, March, May, July, August, October, December
+				if (monthsW31.contains(month) && day > 31) {
+					// Handle specifically December
+					if (month.equals(11)) {
+						year++;
+						month = 0;
+						day = 1;
+					} else {
+						month += 1;
+						day = 1;
+					}
+				}
+				// Wrap Rest of Months
+				if (day > 30) {
+					month += 1;
+					day = 1;
+				}
+				weekBox.getChildren().add(dayView(day, month, year - 1900));
+				day++;
+			}
+			weekBox.setAlignment(Pos.CENTER);
+			ObservableList<Node> weekList = monthBox.getChildren();
+			if (weekList.size() > 0) {
+				HBox prevWeekBox = (HBox) weekList.get(0);
+				weekBox.setMinHeight(prevWeekBox.getHeight());
+			}
+			monthBox.getChildren().add(weekBox);
+		}
+		monthBox.setAlignment(Pos.CENTER);
+		return monthBox;
+	}
+	
 	
 	/**
 	 * Create a Dialog Box, utilized for adding an event to the Calendar.
@@ -382,9 +532,24 @@ public class CalendarView extends Application{
 	/**
 	 * Create the top of the GridPane, for the Scene
 	 */
+	public void updateView() {
+		calendarLabel.setText(Integer.toString(monthTemp+1) + "/"+ Integer.toString(dayTemp) + "/" + Integer.toString(yearTemp) );
+		if(type == 1) {
+			window.setCenter(dayView(dayTemp, monthTemp, yearTemp-1900));
+		}else if(type == 2) {
+			window.setCenter(createWeekBox(dayTemp, monthTemp, yearTemp));
+		}else if(type == 0) {
+			window.setCenter(createMonthBox(monthTemp, yearTemp));
+		}
+		
+	}
 	public void createTop() {
 		// Format calendarLabel
-		calendarLabel = new Label("CALENDAR");
+		viewCalendar = new HBox();	
+		viewCalendar.setPadding(new Insets(5,5,5,5));
+		viewCalendar.setPrefWidth(130);
+		viewCalendar.setAlignment(Pos.CENTER);
+		calendarLabel = new Label(Integer.toString(monthTemp) + "/"+ Integer.toString(dayTemp) + "/" + Integer.toString(yearTemp) );
 		calendarLabel.setFont(new Font("Verdana", 40));
 		// Format topBox, which holds calendarLabel and viewOptions
 		topBox = new VBox();
@@ -396,6 +561,14 @@ public class CalendarView extends Application{
 		viewOptions.setPrefWidth(130);
 		viewOptions.setAlignment(Pos.CENTER);
 		// Format Buttons 
+		previous = new Button("Previous");
+		previous.setMaxSize(130, 30);
+		previous.setPadding(new Insets(10,10,10,10));
+		previous.setFont(new Font("Verdana", 15));
+		next = new Button("Next");
+		next.setMaxSize(130, 30);
+		next.setPadding(new Insets(10,10,10,10));
+		next.setFont(new Font("Verdana", 15));
 		dayButton = new Button("Day View");
 		dayButton.setMaxSize(130, 30);
 		dayButton.setPadding(new Insets(10,10,10,10));
@@ -412,13 +585,25 @@ public class CalendarView extends Application{
 		addEvent.setMaxSize(130, 30);
 		addEvent.setPadding(new Insets(10,10,10,10));
 		addEvent.setFont(new Font("Verdana", 15));
+		
 		// Add all Nodes to Parent
 		viewOptions.getChildren().add(dayButton);
 		viewOptions.getChildren().add(weekButton);
 		viewOptions.getChildren().add(monthButton);
 		viewOptions.getChildren().add(addEvent);
-		topBox.getChildren().add(calendarLabel);
+		//clear button
+		clearAll = new Button("Clear All Events");
+		clearAll.setMaxSize(170, 30);
+		clearAll.setPadding(new Insets(10,10,10,10));
+		clearAll.setFont(new Font("Verdana", 15));
+		clearAll.setStyle("-fx-background-color: Red");
+		//calander nodes
+		viewCalendar.getChildren().add(previous);
+		viewCalendar.getChildren().add(calendarLabel);
+		viewCalendar.getChildren().add(next);
+		topBox.getChildren().add(viewCalendar);
 		topBox.getChildren().add(viewOptions);
+		topBox.getChildren().add(clearAll);
 	}
 	
 	/**
@@ -482,7 +667,25 @@ public class CalendarView extends Application{
 		return dayScroller;
 	}
 	
+	
 	public static void main(String[] args) {
+		
+		calendar1 = null;
+		try {
+			FileInputStream file = new FileInputStream(filename); 
+			ObjectInputStream in = new ObjectInputStream(file); 
+			calendar1 = (Calendar) in.readObject(); 
+			in.close();
+			file.close();
+			System.out.println("test1");
+			calendar1.print();
+		
+		}catch (IOException ex) { 
+            System.out.println("IOException is caught"); 
+        }catch (ClassNotFoundException ex) { 
+            System.out.println("ClassNotFoundException is caught"); 
+        } 
+		
 		launch(args);
 	}
 }

@@ -1,4 +1,5 @@
 package model;
+import java.io.Serializable;
 import java.time.LocalTime;
 import java.util.Date;
 
@@ -15,7 +16,7 @@ import java.util.Date;
  * 
  * @author Joe Corbett & Peter Vukasin
  */
-public class Event {
+public class Event implements Serializable{
 	String note, title, location;
 	LocalTime start;
 	LocalTime end;

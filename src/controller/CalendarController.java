@@ -20,6 +20,10 @@ public class CalendarController {
 		this(new Calendar());
 	}
 	
+	public Calendar getCal() {
+		return model;
+	}
+	
 	/**
 	 * Add an event to the Map data structure, which holds all the events. This 
 	 * method specifically organizes the event into a specific year and month 

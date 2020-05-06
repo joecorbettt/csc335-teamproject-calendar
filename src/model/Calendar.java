@@ -3,7 +3,7 @@ package model;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-
+import java.io.Serializable;
 /**
  * This class represents the data structure that holds all the Calendar events.
  * This is accomplished through a 2D Map and an ArrayList.
@@ -21,7 +21,7 @@ import java.util.Map;
  * @author Joe Corbett and Peter Vukasin
  *
  */
-public class Calendar {
+public class Calendar implements Serializable{
 	Map<Integer, HashMap<Integer, ArrayList<Event>>> events;
 	
 	/**
@@ -29,6 +29,8 @@ public class Calendar {
 	 * 
 	 * This method simply instantiates the Map field, events.
 	 */
+	
+	private int mem = 0;
 	public Calendar() {
 		this.events = new HashMap<Integer, HashMap<Integer, ArrayList<Event>>>();
 	}
@@ -39,9 +41,15 @@ public class Calendar {
 	 * @return events - Map<Integer, HashMap<Integer, ArrayList<Event>>> 
 	 */
 	public Map<Integer, HashMap<Integer, ArrayList<Event>>> getEvents() {
-		return this.events;
+		return this.events; 
+		
 	}
-	
+	public void setMem(int num) {
+		this.mem = num;
+	}
+	public int getMem() {
+		return mem;
+	}
 	/**
 	 * Prints the Calendar Object
 	 */
