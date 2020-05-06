@@ -20,6 +20,7 @@ public class Event {
 	LocalTime start;
 	LocalTime end;
 	Date date;
+	String calendarTag;
 	
 	/**
 	 * Parameterized Constructor for Event Object.
@@ -40,6 +41,7 @@ public class Event {
 		this.end = end;
 		this.note = "";
 		this.location = "";	
+		this.calendarTag = "";
 	}
 	
 	
@@ -163,6 +165,24 @@ public class Event {
 	}
 	
 	/**
+	 * Setter for CalendarTag Field 
+	 * 
+	 * @param calendarTag - String representing calendarTag field for Event
+	 */
+	public void setCalendarTag(String calendarTag) {
+		this.calendarTag = calendarTag;
+	}
+	
+	/**
+	 * Getter for CalendarTag Field
+	 * 
+	 * @return calendarTag - String representing calendarTag field for Event
+	 */
+	public String getCalendarTag() {
+		return this.calendarTag;
+	}
+	
+	/**
 	 * Prints the Event Object 
 	 */
 	public void print() {
@@ -179,5 +199,7 @@ public class Event {
 				this.end.getHour() > 12 ? this.end.getHour() - 12 : this.end.getHour(),
 				this.end.getMinute(),
 				this.end.getHour() > 11 ? "PM" : "AM");
+		System.out.printf("Location: %s\n", this.location);
+		System.out.printf("Notes: %s\n", this.note);
 	}
 }
