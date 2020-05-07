@@ -1,39 +1,44 @@
 package model;
+
 import java.io.Serializable;
 import java.time.LocalTime;
 import java.util.Date;
 
 /**
- * This class represents a standard calendar event. It includes a title, 
- * start date, start time, and end time. Additionally, it includes get
- * and set methods for each object field. This makes it easy to edit the 
- * Event object after it has already been instantiated. 
+ * This class represents a standard calendar event. It includes a title, start
+ * date, start time, and end time. Additionally, it includes get and set methods
+ * for each object field. This makes it easy to edit the Event object after it
+ * has already been instantiated.
  * 
  * Lastly, there is a print() method - which provides a textual representation
- * of the Event object itself. 
+ * of the Event object itself.
  * 
  * One key point to note is that time is represented in 24-Hour format.
  * 
- * @author Joe Corbett & Peter Vukasin
+ * @author Joe Corbett and Peter Vukasin
  */
-public class Event implements Serializable{
+public class Event implements Serializable {
 	String note, title, location;
 	LocalTime start;
 	LocalTime end;
 	Date date;
 	String calendarTag;
-	
+
 	/**
 	 * Parameterized Constructor for Event Object.
 	 * 
-	 * The location and note field do not need to be explicitly defined, 
-	 * meaning they are instantiated with empty strings. If the user wants to
-	 * utilize these fields, they can use the setter methods.
+	 * The location and note field do not need to be explicitly defined, meaning
+	 * they are instantiated with empty strings. If the user wants to utilize these
+	 * fields, they can use the setter methods.
 	 * 
-	 * @param title - String representing title of Event 
-	 * @param date - Date object representing the start date of Event
-	 * @param start - LocalTime object representing start time of Event
-	 * @param end - LocalTime object representing end time of Event
+	 * @param title
+	 *            - String representing title of Event
+	 * @param date
+	 *            - Date object representing the start date of Event
+	 * @param start
+	 *            - LocalTime object representing start time of Event
+	 * @param end
+	 *            - LocalTime object representing end time of Event
 	 */
 	public Event(String title, Date date, LocalTime start, LocalTime end) {
 		this.title = title;
@@ -41,139 +46,134 @@ public class Event implements Serializable{
 		this.start = start;
 		this.end = end;
 		this.note = "";
-		this.location = "";	
+		this.location = "";
 		this.calendarTag = "";
 	}
-	
-	
+
 	/**
 	 * Setter for Title Field
 	 * 
-	 * @param title - String representing title of Event 
+	 * @param title
+	 *            - String representing title of Event
 	 */
 	public void setTitle(String title) {
 		this.title = title.trim();
 	}
-	
-	
+
 	/**
 	 * Getter for Title Field
 	 * 
-	 * @return - String representing title of Event 
+	 * @return - String representing title of Event
 	 */
 	public String getTitle() {
 		return this.title;
 	}
-	
-	
+
 	/**
-	 * Setter for Date Field 
+	 * Setter for Date Field
 	 * 
-	 * @param date - Date object representing the start date of Event
+	 * @param date
+	 *            - Date object representing the start date of Event
 	 */
 	public void setDate(Date date) {
 		this.date = date;
 	}
-	
-	
+
 	/**
-	 * Getter for Date Field 
+	 * Getter for Date Field
 	 * 
-	 * @return - Date object representing the start date of Event 
+	 * @return - Date object representing the start date of Event
 	 */
 	public Date getDate() {
 		return this.date;
 	}
-	
-	
+
 	/**
 	 * Setter for Start Field
-	 *  
-	 * @param start - LocalTime object representing start time of Event
+	 * 
+	 * @param start
+	 *            - LocalTime object representing start time of Event
 	 */
 	public void setStart(LocalTime start) {
 		this.start = start;
 	}
-	
-	
+
 	/**
-	 * Getter for Start Field 
+	 * Getter for Start Field
 	 * 
 	 * @return - LocalTime object representing start time of Event
 	 */
 	public LocalTime getStart() {
 		return this.start;
 	}
-	
-	
+
 	/**
-	 * Setter for End Field 
+	 * Setter for End Field
 	 * 
-	 * @param end - LocalTime object representing end time of Event
+	 * @param end
+	 *            - LocalTime object representing end time of Event
 	 */
 	public void setEnd(LocalTime end) {
 		this.end = end;
 	}
-	
-	
+
 	/**
-	 * Getter for End Field 
+	 * Getter for End Field
 	 * 
 	 * @return - LocalTime object representing end time of Event
 	 */
 	public LocalTime getEnd() {
 		return this.end;
 	}
-	
-	
+
 	/**
-	 * Setter for Note Field 
+	 * Setter for Note Field
 	 * 
-	 * @param note - String representing note field for Event 
+	 * @param note
+	 *            - String representing note field for Event
 	 */
 	public void setNote(String note) {
 		this.note = note.trim();
 	}
-	
-	
+
 	/**
-	 * Getter for Note Field 
+	 * Getter for Note Field
 	 * 
-	 * @return - String representing note field for Event 
+	 * @return - String representing note field for Event
 	 */
 	public String getNote() {
 		return this.note;
 	}
-	
-	
+
 	/**
-	 * Setter for Location Field 
+	 * Setter for Location Field
 	 * 
-	 * @param location - String representing location field for Event 
+	 * @param location
+	 *            - String representing location field for Event
 	 */
 	public void setLocation(String location) {
 		this.location = location.trim();
 	}
-	
-	
+
 	/**
-	 * Getter for Location Field 
+	 * Getter for Location Field
 	 * 
-	 * @return - String representing location field for Event 
+	 * @return - String representing location field for Event
 	 */
 	public String getLocation() {
 		return this.location;
 	}
-	
+
 	/**
-	 * Setter for CalendarTag Field 
+	 * Setter for CalendarTag Field
 	 * 
-	 * @param calendarTag - String representing calendarTag field for Event
+	 * @param calendarTag
+	 *            - String representing calendarTag field for Event
 	 */
 	public void setCalendarTag(String calendarTag) {
 		this.calendarTag = calendarTag;
 	}
-	
+
 	/**
 	 * Getter for CalendarTag Field
 	 * 
@@ -182,23 +182,18 @@ public class Event implements Serializable{
 	public String getCalendarTag() {
 		return this.calendarTag;
 	}
-	
+
 	/**
-	 * Prints the Event Object 
+	 * Prints the Event Object
 	 */
 	public void print() {
 		System.out.printf("Title: %s\n", this.title);
-		System.out.printf("Date: %d-%d-%d\n", 
-				this.date.getMonth(), 
-				this.date.getDate(), 
-				this.date.getYear());
-		System.out.printf("Start Time: %d:%d %s\n", 
-				this.start.getHour() > 12 ? this.start.getHour() - 12 : this.start.getHour(),
-				this.start.getMinute(),
+		System.out.printf("Date: %d-%d-%d\n", this.date.getMonth(), this.date.getDate(), this.date.getYear());
+		System.out.printf("Start Time: %d:%d %s\n",
+				this.start.getHour() > 12 ? this.start.getHour() - 12 : this.start.getHour(), this.start.getMinute(),
 				this.start.getHour() > 11 ? "PM" : "AM");
-		System.out.printf("End Time: %d:%d %s\n", 
-				this.end.getHour() > 12 ? this.end.getHour() - 12 : this.end.getHour(),
-				this.end.getMinute(),
+		System.out.printf("End Time: %d:%d %s\n",
+				this.end.getHour() > 12 ? this.end.getHour() - 12 : this.end.getHour(), this.end.getMinute(),
 				this.end.getHour() > 11 ? "PM" : "AM");
 		System.out.printf("Location: %s\n", this.location);
 		System.out.printf("Notes: %s\n", this.note);
